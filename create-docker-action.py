@@ -24,9 +24,14 @@ def _ghcr_image_exists(image: str) -> bool:
         return False
 
 
+# Published image for release v1.14.0
+IMAGE_DIGEST = (
+    'sha256:d6dd36811cb9ff523b58289782e05fd52861cfa37d34acc2c338bd18e0bfb418'
+)
+
+
 def set_image(ref: str, repo: str) -> str:
-    docker_ref = ref.replace('/', '-')
-    ghcr_image = f'ghcr.io/{repo}:{docker_ref}'
+    ghcr_image = f'ghcr.io/{repo}@{IMAGE_DIGEST}'
     if _ghcr_image_exists(ghcr_image):
         return f'docker://{ghcr_image}'
     return str(ACTION_SHELL_CHECKOUT_PATH / 'Dockerfile')
