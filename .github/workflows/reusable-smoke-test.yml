@@ -3,7 +3,7 @@
 name: ♻️ 🧪
 
 on:
-  workflow_call:
+  pull_request
 
 env:
   devpi-password: abcd1234
