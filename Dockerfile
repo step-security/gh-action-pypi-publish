@@ -1,10 +1,5 @@
 FROM python:3.13-slim
 
-LABEL "maintainer" "Sviatoslav Sydorenko <wk+pypa@sydorenko.org.ua>"
-LABEL "repository" "https://github.com/pypa/gh-action-pypi-publish"
-LABEL "homepage" "https://github.com/marketplace/actions/pypi-publish"
-LABEL "org.opencontainers.image.source" "https://github.com/pypa/gh-action-pypi-publish"
-
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 

@@ -10,9 +10,6 @@ in the `dist/` directory to PyPI.
 This text suggests a minimalistic usage overview. For a more detailed
 walkthrough check out the [PyPA guide].
 
-If you have any feedback regarding specific action versions, please leave
-comments in the corresponding [per-release announcement discussions].
-
 > [!TIP]
 > A limited number of usage scenarios is supported, including the
 > [PyPA guide] example. See the [non-goals] for more detail.
@@ -348,10 +345,6 @@ https://img.shields.io/badge/project-yellow?label=PyPA&labelColor=ffd242&color=3
 https://github.com/step-security/gh-action-pypi-publish/actions/workflows/build-and-push-docker-image.yml/badge.svg?branch=unstable%2Fv1&event=push
 [GHA workflow runs list]:
 https://github.com/step-security/gh-action-pypi-publish/actions/workflows/self-smoke-test-action.yml?query=branch%3Aunstable%2Fv1
-
-
-[per-release announcement discussions]:
-https://github.com/step-security/gh-action-pypi-publish/discussions/categories/announcements
 
 [non-goals]: #Non-goals
 
