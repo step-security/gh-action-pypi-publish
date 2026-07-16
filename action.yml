@@ -191,11 +191,6 @@ runs:
           || github.event.pull_request.head.repo.full_name
           || github.repository
         }}
-      REPO_ID: >-
-        ${{
-          github.event.pull_request.base.repo.id
-          || github.repository_id
-        }}
     shell: bash
   - name: Run Docker container
     # The generated trampoline action must exist in the allowlisted

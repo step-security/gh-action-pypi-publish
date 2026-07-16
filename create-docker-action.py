@@ -8,9 +8,6 @@ REQUIRED = 'required'
 
 REF = os.environ['REF']
 REPO = os.environ['REPO']
-REPO_ID = os.environ['REPO_ID']
-REPO_ID_GH_ACTION = '178055147'
-REPO_ID_STEP_SECURITY = '1301865245'
 
 ACTION_SHELL_CHECKOUT_PATH = pathlib.Path(__file__).parent.resolve()
 
@@ -27,19 +24,15 @@ def _ghcr_image_exists(image: str) -> bool:
         return False
 
 
-def set_image(ref: str, repo: str, repo_id: str) -> str:
-    if repo_id == REPO_ID_GH_ACTION:
-        return str(ACTION_SHELL_CHECKOUT_PATH / 'Dockerfile')
+def set_image(ref: str, repo: str) -> str:
     docker_ref = ref.replace('/', '-')
-    if repo_id == REPO_ID_STEP_SECURITY:
-        ghcr_image = f'ghcr.io/{repo}:{docker_ref}'
-        if _ghcr_image_exists(ghcr_image):
-            return f'docker://{ghcr_image}'
-        return str(ACTION_SHELL_CHECKOUT_PATH / 'Dockerfile')
-    return f'docker://ghcr.io/{repo}:{docker_ref}'
+    ghcr_image = f'ghcr.io/{repo}:{docker_ref}'
+    if _ghcr_image_exists(ghcr_image):
+        return f'docker://{ghcr_image}'
+    return str(ACTION_SHELL_CHECKOUT_PATH / 'Dockerfile')
 
 
-image = set_image(REF, REPO, REPO_ID)
+image = set_image(REF, REPO)
 
 action = {
     'name': '🏃',
