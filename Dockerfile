@@ -1,4 +1,4 @@
-FROM python:3.13-alpine@sha256:399babc8b49529dabfd9c922f2b5eea81d611e4512e3ed250d75bd2e7683f4b0
+FROM python:3.13-slim@sha256:6771159cd4fa5d9bba1258caf0b82e6b73458c694d178ad97c5e925c2d0e1a91
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
@@ -8,8 +8,6 @@ ENV PIP_ROOT_USER_ACTION=ignore
 
 ENV PATH="/root/.local/bin:${PATH}"
 ENV PYTHONPATH="/root/.local/lib/python3.13/site-packages"
-
-RUN apk add --no-cache bash
 
 COPY requirements requirements
 RUN \
