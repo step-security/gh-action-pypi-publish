@@ -164,7 +164,7 @@ runs:
     if: steps.pre-installed-python.outputs.python-path == ''
     id: new-python
     # yamllint disable-line rule:line-length
-    uses: actions/setup-python@v6
+    uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
     with:
       python-version: 3.x
   - name: Create Docker container action
