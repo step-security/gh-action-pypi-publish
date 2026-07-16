@@ -19,7 +19,7 @@ RUN \
       -r requirements/runtime.in
 
 WORKDIR /app
-COPY LICENSE.md .
+COPY LICENSE .
 COPY twine-upload.sh .
 COPY print-hash.py .
 COPY print-pkg-names.py .
