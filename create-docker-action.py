@@ -1,6 +1,7 @@
 import json
 import os
 import pathlib
+import sys
 import urllib.request
 
 DESCRIPTION = 'description'
@@ -48,14 +49,22 @@ def _ghcr_image_exists(repo: str, digest: str) -> bool:
         )
         with urllib.request.urlopen(manifest_request, timeout=15) as response:
             return response.status == 200
-    except Exception:
+    except Exception as exc:
+        print(
+            f'::warning::Could not confirm ghcr.io/{repo}@{digest} '
+            f'({type(exc).__name__}: {exc}); falling back to Dockerfile build.',
+            file=sys.stderr,
+        )
         return False
 
 
 def set_image(ref: str, repo: str) -> str:
     if _ghcr_image_exists(repo, IMAGE_DIGEST):
-        return f'docker://ghcr.io/{repo}@{IMAGE_DIGEST}'
-    return str(ACTION_SHELL_CHECKOUT_PATH / 'Dockerfile')
+        image = f'docker://ghcr.io/{repo}@{IMAGE_DIGEST}'
+    else:
+        image = str(ACTION_SHELL_CHECKOUT_PATH / 'Dockerfile')
+    print(f'::notice::Resolved action image to: {image}', file=sys.stderr)
+    return image
 
 
 image = set_image(REF, REPO)
