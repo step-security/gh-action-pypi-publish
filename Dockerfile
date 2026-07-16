@@ -9,6 +9,8 @@ ENV PIP_ROOT_USER_ACTION=ignore
 ENV PATH="/root/.local/bin:${PATH}"
 ENV PYTHONPATH="/root/.local/lib/python3.13/site-packages"
 
+RUN apk add --no-cache bash
+
 COPY requirements requirements
 RUN \
   PIP_CONSTRAINT=requirements/runtime-prerequisites.txt \
