@@ -1,38 +1,74 @@
 import json
-import os
 import pathlib
-import subprocess
+import sys
+import urllib.request
 
 DESCRIPTION = 'description'
 REQUIRED = 'required'
 
-REF = os.environ['REF']
-REPO = os.environ['REPO']
-
 ACTION_SHELL_CHECKOUT_PATH = pathlib.Path(__file__).parent.resolve()
 
+# Published image for release v1.14.0.
+# NOTE: The repo is hardcoded rather than derived from `github.action_repository`
+# NOTE: because the action may be invoked through a trampoline (e.g.
+# NOTE: `step-security/dynamic-uses`), in which case `REPO` points at the
+# NOTE: wrapper action instead of this one.
+IMAGE_REPO = 'step-security/gh-action-pypi-publish'
+IMAGE_DIGEST = (
+    'sha256:d6dd36811cb9ff523b58289782e05fd52861cfa37d34acc2c338bd18e0bfb418'
+)
 
-def _ghcr_image_exists(image: str) -> bool:
+_MANIFEST_ACCEPT = ', '.join((
+    'application/vnd.oci.image.index.v1+json',
+    'application/vnd.oci.image.manifest.v1+json',
+    'application/vnd.docker.distribution.manifest.list.v2+json',
+    'application/vnd.docker.distribution.manifest.v2+json',
+))
+
+
+def _ghcr_image_exists(repo: str, digest: str) -> bool:
+    # NOTE: Query the registry over HTTPS with an anonymous pull token so the
+    # NOTE: check does not depend on Docker experimental features, the buildx
+    # NOTE: plugin, or any locally configured registry credentials -- all of
+    # NOTE: which vary between runners and caused false negatives that made the
+    # NOTE: action rebuild the image from the Dockerfile instead.
     try:
-        result = subprocess.run(
-            ['docker', 'manifest', 'inspect', image],
-            capture_output=True,
-            timeout=15,
+        token_url = (
+            'https://ghcr.io/token'
+            f'?service=ghcr.io&scope=repository:{repo}:pull'
         )
-        return result.returncode == 0
-    except Exception:
+        with urllib.request.urlopen(token_url, timeout=15) as response:
+            token = json.load(response)['token']
+
+        manifest_request = urllib.request.Request(
+            f'https://ghcr.io/v2/{repo}/manifests/{digest}',
+            method='HEAD',
+            headers={
+                'Authorization': f'Bearer {token}',
+                'Accept': _MANIFEST_ACCEPT,
+            },
+        )
+        with urllib.request.urlopen(manifest_request, timeout=15) as response:
+            return response.status == 200
+    except Exception as exc:
+        print(
+            f'::warning::Could not confirm ghcr.io/{repo}@{digest} '
+            f'({type(exc).__name__}: {exc}); falling back to Dockerfile build.',
+            file=sys.stderr,
+        )
         return False
 
 
-def set_image(ref: str, repo: str) -> str:
-    docker_ref = ref.replace('/', '-')
-    ghcr_image = f'ghcr.io/{repo}:{docker_ref}'
-    if _ghcr_image_exists(ghcr_image):
-        return f'docker://{ghcr_image}'
-    return str(ACTION_SHELL_CHECKOUT_PATH / 'Dockerfile')
+def set_image() -> str:
+    if _ghcr_image_exists(IMAGE_REPO, IMAGE_DIGEST):
+        image = f'docker://ghcr.io/{IMAGE_REPO}@{IMAGE_DIGEST}'
+    else:
+        image = str(ACTION_SHELL_CHECKOUT_PATH / 'Dockerfile')
+    print(f'::notice::Resolved action image to: {image}', file=sys.stderr)
+    return image
 
 
-image = set_image(REF, REPO)
+image = set_image()
 
 action = {
     'name': '🏃',
