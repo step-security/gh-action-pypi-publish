@@ -1,7 +1,7 @@
 import json
 import os
 import pathlib
-import subprocess
+import urllib.request
 
 DESCRIPTION = 'description'
 REQUIRED = 'required'
@@ -11,29 +11,50 @@ REPO = os.environ['REPO']
 
 ACTION_SHELL_CHECKOUT_PATH = pathlib.Path(__file__).parent.resolve()
 
-
-def _ghcr_image_exists(image: str) -> bool:
-    try:
-        result = subprocess.run(
-            ['docker', 'manifest', 'inspect', image],
-            capture_output=True,
-            timeout=15,
-        )
-        return result.returncode == 0
-    except Exception:
-        return False
-
-
 # Published image for release v1.14.0
 IMAGE_DIGEST = (
     'sha256:d6dd36811cb9ff523b58289782e05fd52861cfa37d34acc2c338bd18e0bfb418'
 )
 
+_MANIFEST_ACCEPT = ', '.join((
+    'application/vnd.oci.image.index.v1+json',
+    'application/vnd.oci.image.manifest.v1+json',
+    'application/vnd.docker.distribution.manifest.list.v2+json',
+    'application/vnd.docker.distribution.manifest.v2+json',
+))
+
+
+def _ghcr_image_exists(repo: str, digest: str) -> bool:
+    # NOTE: Query the registry over HTTPS with an anonymous pull token so the
+    # NOTE: check does not depend on Docker experimental features, the buildx
+    # NOTE: plugin, or any locally configured registry credentials -- all of
+    # NOTE: which vary between runners and caused false negatives that made the
+    # NOTE: action rebuild the image from the Dockerfile instead.
+    try:
+        token_url = (
+            'https://ghcr.io/token'
+            f'?service=ghcr.io&scope=repository:{repo}:pull'
+        )
+        with urllib.request.urlopen(token_url, timeout=15) as response:
+            token = json.load(response)['token']
+
+        manifest_request = urllib.request.Request(
+            f'https://ghcr.io/v2/{repo}/manifests/{digest}',
+            method='HEAD',
+            headers={
+                'Authorization': f'Bearer {token}',
+                'Accept': _MANIFEST_ACCEPT,
+            },
+        )
+        with urllib.request.urlopen(manifest_request, timeout=15) as response:
+            return response.status == 200
+    except Exception:
+        return False
+
 
 def set_image(ref: str, repo: str) -> str:
-    ghcr_image = f'ghcr.io/{repo}@{IMAGE_DIGEST}'
-    if _ghcr_image_exists(ghcr_image):
-        return f'docker://{ghcr_image}'
+    if _ghcr_image_exists(repo, IMAGE_DIGEST):
+        return f'docker://ghcr.io/{repo}@{IMAGE_DIGEST}'
     return str(ACTION_SHELL_CHECKOUT_PATH / 'Dockerfile')
 
 
