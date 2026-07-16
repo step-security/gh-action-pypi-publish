@@ -1,5 +1,4 @@
 import json
-import os
 import pathlib
 import sys
 import urllib.request
@@ -7,12 +6,14 @@ import urllib.request
 DESCRIPTION = 'description'
 REQUIRED = 'required'
 
-REF = os.environ['REF']
-REPO = os.environ['REPO']
-
 ACTION_SHELL_CHECKOUT_PATH = pathlib.Path(__file__).parent.resolve()
 
-# Published image for release v1.14.0
+# Published image for release v1.14.0.
+# NOTE: The repo is hardcoded rather than derived from `github.action_repository`
+# NOTE: because the action may be invoked through a trampoline (e.g.
+# NOTE: `step-security/dynamic-uses`), in which case `REPO` points at the
+# NOTE: wrapper action instead of this one.
+IMAGE_REPO = 'step-security/gh-action-pypi-publish'
 IMAGE_DIGEST = (
     'sha256:d6dd36811cb9ff523b58289782e05fd52861cfa37d34acc2c338bd18e0bfb418'
 )
@@ -58,16 +59,16 @@ def _ghcr_image_exists(repo: str, digest: str) -> bool:
         return False
 
 
-def set_image(ref: str, repo: str) -> str:
-    if _ghcr_image_exists(repo, IMAGE_DIGEST):
-        image = f'docker://ghcr.io/{repo}@{IMAGE_DIGEST}'
+def set_image() -> str:
+    if _ghcr_image_exists(IMAGE_REPO, IMAGE_DIGEST):
+        image = f'docker://ghcr.io/{IMAGE_REPO}@{IMAGE_DIGEST}'
     else:
         image = str(ACTION_SHELL_CHECKOUT_PATH / 'Dockerfile')
     print(f'::notice::Resolved action image to: {image}', file=sys.stderr)
     return image
 
 
-image = set_image(REF, REPO)
+image = set_image()
 
 action = {
     'name': '🏃',
