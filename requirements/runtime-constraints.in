@@ -17,3 +17,15 @@
 # NOTE: Twine 6.1 needs packaging 24.2 to support metadata 2.4
 # Ref: https://github.com/pypa/twine/pull/1180
 packaging >= 24.2
+
+# NOTE: cryptography 45.x has high-severity CVEs; pyopenssl >= 26 is required
+# NOTE: since 25.x caps cryptography < 46.
+# Ref: https://github.com/advisories/GHSA-r6ph-v2qm-q3c2
+cryptography >= 49.0.0
+pyopenssl >= 26.0.0
+pyasn1 >= 0.6.4
+pyjwt >= 2.13.0
+pygments >= 2.20.0
+idna >= 3.15
+platformdirs < 4.11.8
+rfc3161-client >= 1.0.6
