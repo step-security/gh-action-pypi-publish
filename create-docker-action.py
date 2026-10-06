@@ -8,14 +8,14 @@ REQUIRED = 'required'
 
 ACTION_SHELL_CHECKOUT_PATH = pathlib.Path(__file__).parent.resolve()
 
-# Published image for release v1.14.0.
+# Published image for release v1.14.2.
 # NOTE: The repo is hardcoded rather than derived from `github.action_repository`
 # NOTE: because the action may be invoked through a trampoline (e.g.
 # NOTE: `step-security/dynamic-uses`), in which case `REPO` points at the
 # NOTE: wrapper action instead of this one.
 IMAGE_REPO = 'step-security/gh-action-pypi-publish'
 IMAGE_DIGEST = (
-    'sha256:d6dd36811cb9ff523b58289782e05fd52861cfa37d34acc2c338bd18e0bfb418'
+    'sha256:2b555392ff2b1d157e15c0d298eda580a547ac45ac38730a468beb509b2f972e'
 )
 
 _MANIFEST_ACCEPT = ', '.join((
