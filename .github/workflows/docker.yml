@@ -43,7 +43,7 @@ jobs:
         uses: step-security/setup-qemu-action@fe44c529aab16157fc475f4991a7f926aa9a02a2 # v4.1.0
 
       - name: Set up Docker Buildx
-        uses: step-security/setup-buildx-action@6997872a55d77391e51b87609556578131f44402 # v4.1.0
+        uses: step-security/setup-buildx-action@e50058a0fcd8d1a7d626c905502d010a468bf238 # v4.4.1
 
       - name: Build and push Docker image
         uses: step-security/docker-build-push-action@9af9b5acc1751dcec2aa5375a068979fa526bc9a # v7.2.0
